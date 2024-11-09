@@ -648,6 +648,7 @@ fill_touch(char *nodename, char *content)
 {
 	if (!strcasecmp(nodename, "touch")) {
 		current_touch = znew(*current_touch);
+		current_touch->hide_cursor = true;
 		wl_list_append(&rc.touch_configs, &current_touch->link);
 	} else if (!strcasecmp(nodename, "deviceName.touch")) {
 		current_touch->device_name = xstrdup(content);
@@ -655,6 +656,8 @@ fill_touch(char *nodename, char *content)
 		current_touch->output_name = xstrdup(content);
 	} else if (!strcasecmp(nodename, "mouseEmulation.touch")) {
 		set_bool(content, &current_touch->force_mouse_emulation);
+	} else if (!strcasecmp(nodename, "hideCursor.touch")) {
+		set_bool(content, &current_touch->hide_cursor);
 	} else {
 		wlr_log(WLR_ERROR, "Unexpected data in touch parser: %s=\"%s\"",
 			nodename, content);
@@ -1237,6 +1240,8 @@ entry(xmlNode *node, char *nodename, char *content)
 		set_bool(content, &rc.resize_draw_contents);
 	} else if (!strcasecmp(nodename, "mouseEmulation.tablet")) {
 		set_bool(content, &rc.tablet.force_mouse_emulation);
+	} else if (!strcasecmp(nodename, "hideCursor.tablet")) {
+		set_bool(content, &rc.tablet.hide_cursor);
 	} else if (!strcasecmp(nodename, "mapToOutput.tablet")) {
 		rc.tablet.output_name = xstrdup(content);
 	} else if (!strcasecmp(nodename, "rotate.tablet")) {
@@ -1464,6 +1469,7 @@ rcxml_init(void)
 	rc.doubleclick_time = 500;
 
 	rc.tablet.force_mouse_emulation = false;
+	rc.tablet.hide_cursor = false;
 	rc.tablet.output_name = NULL;
 	rc.tablet.rotation = 0;
 	rc.tablet.box = (struct wlr_fbox){0};

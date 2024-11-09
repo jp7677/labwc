@@ -118,6 +118,7 @@ struct rcxml {
 	/* graphics tablet */
 	struct tablet_config {
 		bool force_mouse_emulation;
+		bool hide_cursor;
 		char *output_name;
 		struct wlr_fbox box;
 		enum rotation rotation;

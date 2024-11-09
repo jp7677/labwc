@@ -9,6 +9,7 @@ struct touch_config_entry {
 	char *device_name;
 	char *output_name;
 	bool force_mouse_emulation;
+	bool hide_cursor;
 
 	struct wl_list link;     /* struct rcxml.touch_configs */
 };

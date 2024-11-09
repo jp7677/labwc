@@ -56,6 +56,18 @@ touch_get_coords(struct seat *seat, struct wlr_touch *touch, double x, double y,
 	return surface;
 }
 
+static bool
+get_hide_cursor(struct wlr_touch *touch)
+{
+	struct touch_config_entry *config_entry =
+		touch_find_config_for_device(touch->base.name);
+	if (config_entry && config_entry->hide_cursor) {
+		return true;
+	}
+
+	return false;
+}
+
 static void
 handle_touch_motion(struct wl_listener *listener, void *data)
 {
@@ -63,6 +75,7 @@ handle_touch_motion(struct wl_listener *listener, void *data)
 	struct wlr_touch_motion_event *event = data;
 
 	idle_manager_notify_activity(seat->seat);
+	cursor_set_visible(seat, !get_hide_cursor(event->touch));
 
 	int touch_point_count = wl_list_length(&seat->touch_points);
 
@@ -112,6 +125,7 @@ handle_touch_down(struct wl_listener *listener, void *data)
 	struct wlr_touch_down_event *event = data;
 
 	idle_manager_notify_activity(seat->seat);
+	cursor_set_visible(seat, !get_hide_cursor(event->touch));
 
 	/* Compute layout => surface offset and save for this touch point */
 	struct touch_point *touch_point = znew(*touch_point);
@@ -124,9 +138,6 @@ handle_touch_down(struct wl_listener *listener, void *data)
 
 	wl_list_insert(&seat->touch_points, &touch_point->link);
 	int touch_point_count = wl_list_length(&seat->touch_points);
-
-	/* hide the cursor when starting touch input */
-	cursor_set_visible(seat, /* visible */ false);
 
 	if (touch_point->surface) {
 		seat_pointer_end_grab(seat, touch_point->surface);
@@ -175,6 +186,7 @@ handle_touch_up(struct wl_listener *listener, void *data)
 	struct wlr_touch_up_event *event = data;
 
 	idle_manager_notify_activity(seat->seat);
+	cursor_set_visible(seat, !get_hide_cursor(event->touch));
 
 	/* Remove the touch point from the seat */
 	struct touch_point *touch_point, *tmp;

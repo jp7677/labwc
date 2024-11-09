@@ -540,8 +540,11 @@
 
     If mouseEmulation is enabled, all touch up/down/motion events are
     translated to mouse button and motion events.
+
+    By default the cursor is hidden for touch interaction and is kept
+    hidden until another input device is used.
   -->
-  <touch deviceName="" mapToOutput="" mouseEmulation="no"/>
+  <touch deviceName="" mapToOutput="" mouseEmulation="no" hideCursor="yes"/>
 
   <!--
     The tablet cursor movement can be restricted to a single output.
@@ -561,6 +564,8 @@
     tablet specific restrictions, e.g. no support for drag&drop, but also
     omits tablet specific features like reporting pen pressure.
 
+    The cursor is visible for tablet/pen interaction by default.
+
     Pen buttons emulate regular mouse buttons. The pen *button* can be any
     of [Stylus|Stylus2|Stylus3] and can be mapped to mouse buttons
     [Right|Middle|Side]. Tablet pad buttons [Pad|Pad2|Pad3|..|Pad9] also
@@ -568,7 +573,7 @@
     When using mouse emulation, the pen tip [tip] and the stylus buttons
     can be set to any available mouse button [Left|Right|Middle|..|Task].
   -->
-  <tablet mapToOutput="" rotate="0" mouseEmulation="no">
+  <tablet mapToOutput="" rotate="0" mouseEmulation="no" hideCursor="no">
     <!-- Active area dimensions are in mm -->
     <area top="0.0" left="0.0" width="0.0" height="0.0" />
     <map button="Tip" to="Left" />

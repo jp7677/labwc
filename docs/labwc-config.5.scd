@@ -690,7 +690,7 @@ extending outward from the snapped edge.
 ## TOUCH
 
 ```
-<touch deviceName="" mapToOutput="" mouseEmulation="no"/>
+<touch deviceName="" mapToOutput="" mouseEmulation="no" hideCursor="yes"/>
 ```
 
 *<touch deviceName="" />*
@@ -708,10 +708,14 @@ extending outward from the snapped edge.
 	If mouseEmulation is enabled, all touch up/down/motion events are
 	translated to mouse button and motion events.
 
+*<touch hideCursor="" />*
+	Hides the cursor for touch interaction and keeps it hidden until
+	another input device is used.
+
 ## TABLET
 
 ```
-<tablet mapToOutput="" rotate="0" mouseEmulation="no">
+<tablet mapToOutput="" rotate="0" mouseEmulation="no" hideCursor="no">
   <area top="0.0" left="0.0" width="0.0" height="0.0" />
   <map button="Tip" to="Left" />
   <map button="Stylus" to="Right" />
@@ -761,6 +765,10 @@ extending outward from the snapped edge.
 
 	Use the *ToggleTabletMouseEmulation* action for toggling between
 	mouse emulation on and off.
+
+*<tablet hideCursor="" />*
+	Hides the cursor for tablet interaction and keeps it hidden until
+	another input device is used.
 
 *<tablet><map button="" to="" />*
 	Pen and pad buttons behave like regular mouse buttons.With mouse
