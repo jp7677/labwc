@@ -13,6 +13,9 @@ struct wlr_surface;
 struct wlr_scene_node;
 enum wl_pointer_button_state;
 
+/* Defines the delta of a single step for a mouse wheel */
+#define LABWC_POINTER_AXIS_STEP 15
+
 /* Cursors used internally by labwc */
 enum lab_cursors {
 	LAB_CURSOR_CLIENT = 0,

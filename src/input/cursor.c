@@ -4,6 +4,7 @@
 #include <linux/input-event-codes.h>
 #include <sys/time.h>
 #include <time.h>
+#include <wlr/backend/libinput.h>
 #include <wlr/types/wlr_cursor_shape_v1.h>
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/util/region.h>
@@ -835,6 +836,19 @@ preprocess_cursor_motion(struct seat *seat, struct wlr_pointer *pointer,
 	}
 }
 
+static double get_natural_scroll_factor(struct wlr_input_device *wlr_input_device)
+{
+	if (wlr_input_device_is_libinput(wlr_input_device)) {
+		struct libinput_device *libinput_device =
+			wlr_libinput_get_device_handle(wlr_input_device);
+		if (libinput_device_config_scroll_get_natural_scroll_enabled(libinput_device)) {
+			return -1.0;
+		}
+	}
+
+	return 1.0;
+}
+
 static void
 handle_motion(struct wl_listener *listener, void *data)
 {
@@ -848,14 +862,39 @@ handle_motion(struct wl_listener *listener, void *data)
 	idle_manager_notify_activity(seat->seat);
 	cursor_set_visible(seat, /* visible */ true);
 
-	wlr_relative_pointer_manager_v1_send_relative_motion(
-		server->relative_pointer_manager,
-		seat->seat, (uint64_t)event->time_msec * 1000,
-		event->delta_x, event->delta_y, event->unaccel_dx,
-		event->unaccel_dy);
+	if (seat->cursor_scroll_wheel_emulation) {
+		double natural_scroll_factor = get_natural_scroll_factor(&event->pointer->base);
+		struct input *input = event->pointer->base.data;
+		double scroll_factor = input->scroll_factor * natural_scroll_factor;
 
-	preprocess_cursor_motion(seat, event->pointer,
-		event->time_msec, event->delta_x, event->delta_y);
+		uint32_t orientation;
+		double delta;
+		double direction;
+		if (fabs(event->delta_x) > fabs(event->delta_y)) {
+			orientation = WL_POINTER_AXIS_HORIZONTAL_SCROLL;
+			delta = fabs(event->delta_x);
+			direction = event->delta_x > 0.0 ? 1.0 : -1.0;
+		} else {
+			orientation = WL_POINTER_AXIS_VERTICAL_SCROLL;
+			delta = fabs(event->delta_y);
+			direction = event->delta_y > 0.0 ? 1.0 : -1.0;
+		}
+
+		cursor_emulate_axis(seat, &event->pointer->base,
+			orientation,
+			LABWC_POINTER_AXIS_STEP * scroll_factor * direction * delta,
+			WLR_POINTER_AXIS_DISCRETE_STEP * scroll_factor * direction,
+			event->time_msec);
+	} else {
+		wlr_relative_pointer_manager_v1_send_relative_motion(
+			server->relative_pointer_manager,
+			seat->seat, (uint64_t)event->time_msec * 1000,
+			event->delta_x, event->delta_y, event->unaccel_dx,
+			event->unaccel_dy);
+
+		preprocess_cursor_motion(seat, event->pointer,
+			event->time_msec, event->delta_x, event->delta_y);
+	}
 }
 
 static void
