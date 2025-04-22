@@ -883,7 +883,7 @@ handle_motion(struct wl_listener *listener, void *data)
 		cursor_emulate_axis(seat, &event->pointer->base,
 			orientation,
 			LABWC_POINTER_AXIS_STEP * scroll_factor * direction * delta,
-			WLR_POINTER_AXIS_DISCRETE_STEP * scroll_factor * direction,
+			WLR_POINTER_AXIS_DISCRETE_STEP * scroll_factor * direction * delta,
 			event->time_msec);
 	} else {
 		wlr_relative_pointer_manager_v1_send_relative_motion(
